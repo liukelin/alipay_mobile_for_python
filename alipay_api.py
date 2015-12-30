@@ -15,11 +15,11 @@ def alipay_api(data = {}):
     payment_type = "1";
     #必填，不能修改
     #服务器异步通知页面路径
-    notify_url = "http://test.qiandeer.ymapp.com/wap_alipay/alipay/notify_url.php"
+    notify_url = "http://xxxx.com/notify_url.php"
     #需http://格式的完整路径，不能加?id=123这类自定义参数
 
     #页面跳转同步通知页面路径
-    return_url = "http://test.qiandeer.ymapp.com/wap_alipay/alipay/return_url.php"
+    return_url = "http://xxxx.com/return_url.php"
     #需http://格式的完整路径，不能加?id=123这类自定义参数，不能写成http://localhost/
 
     #商户订单号
@@ -35,7 +35,7 @@ def alipay_api(data = {}):
     #必填
 
     #商品展示地址
-    show_url = data['WIDshow_url'] if data['WIDshow_url'] else 'http://qiandeer.com'     #$_POST['WIDshow_url'];
+    show_url = data['WIDshow_url'] if data['WIDshow_url'] else 'http://xxxx.com'     #$_POST['WIDshow_url'];
     #必填，需以http://开头的完整路径，例如：http://www.商户网址.com/myorder.html
 
     #订单描述
