@@ -14,8 +14,11 @@
 
 #  *************************注意*************************
 #  * 调试通知返回时，可查看或改写log日志的写入TXT里的数据，来检查通知返回是否正常
+import time
 import alipay_core_function
 import alipay_md5_function
+
+import utils
 
 class AlipayNotify :
     
@@ -38,16 +41,36 @@ class AlipayNotify :
      # @return 验证结果
      #
     def verifyNotify (self, request_data) :
+        print "=request_data:%s=" %request_data
         if len(request_data) ==0 :     #判断POST来的数组是否为空
+            print 'request_data error!'
             return False
         else :
+            if request_data.has_key('out_trade_no')==False  or request_data['out_trade_no']=='':
+                print 'out_trade_no error!'
+                return False
+
+            if request_data.has_key('trade_no')==False  or request_data['trade_no']=='':
+                print 'trade_no error!'
+                return False
+
+            # if request_data.has_key('sign')==False or request_data['sign']=='' :
+            #     print 'sign error!'
+            #     return False
+
+            if request_data.has_key('pay_sign')==False or request_data['pay_sign']=='' :
+                print '==%s: pay_sign error!==' % (request_data['trade_no'] )
+                return False
+
+            isSign = False
             #生成签名结果
-            isSign = self.getSignVeryfy(request_data, request_data["sign"])
+            # isSign = self.getSignVeryfy(request_data, request_data["sign"])
+            isSign = self.getSignVeryfy2(request_data['out_trade_no'], request_data["pay_sign"])
 
             #获取支付宝远程服务器ATN结果（验证是否是支付宝发来的消息）
             responseTxt = 'false'
-            if request_data["notify_id"]!='' :
-                responseTxt = self.getResponse(self, request_data["notify_id"])
+            if request_data.has_key('notify_id') == True :
+                responseTxt = self.getResponse( request_data["notify_id"])
             
             #写日志记录
             #if ($isSign) {
@@ -55,15 +78,27 @@ class AlipayNotify :
             # }else {
             #   $isSignStr = 'false';
             # }
-            # $log_text = "responseTxt=".$responseTxt."\n notify_url_log:isSign=".$isSignStr.",";
-            # $log_text = $log_text.createLinkString($_POST);
+            
+            log_text = "notify_url_log:out_trade_no:%s, responseTxt=%s ,isSign=%s, pay_sign=%s,  key=%s," % (request_data['out_trade_no'], responseTxt, isSign, request_data["pay_sign"], self.alipay_config['key'])
+            print "=%s=" %log_text
+            '''
             # logResult($log_text);
+            # utils.loggers.use('pay_alipay', send_log_file_).info("TransnotifyurlHandler_verifyNotify,%s" % (log_text))
+            file_object = open('verifyNotify_logs.log', 'a')
+            time_ = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time.time()))
+            file_object.write("[%s],%s\n" %(time_, log_text))
+            file_object.close( )
+            '''
+            try:
+                utils.loggers.use('pay_alipay', '/home/deploy/log/duobao/pay_alipay.log').info("%s"% (log_text))
+            except:
+                pass
             
             #验证
             #$responsetTxt的结果不是true，与服务器设置问题、合作身份者ID、notify_id一分钟失效有关
             #isSign的结果不是true，与安全校验码、请求时的参数格式（如：带自定义参数等）、编码格式有关
             #preg_match("/true$/i",$responseTxt) 
-            if responseTxt == 'true' and isSign !='' :
+            if responseTxt .strip() == 'true' and isSign==True:
                 return True
             else :
                 return False
@@ -81,8 +116,8 @@ class AlipayNotify :
             
             #获取支付宝远程服务器ATN结果（验证是否是支付宝发来的消息）
             responseTxt = 'false'
-            if request_data["notify_id"] != '' :
-                responseTxt = self.getResponse(self, request_data["notify_id"])
+            if request_data.has_key('notify_id') == True :
+                responseTxt = self.getResponse(request_data["notify_id"])
             #写日志记录
             # if ($isSign) {
             #   $isSignStr = 'true';
@@ -128,6 +163,10 @@ class AlipayNotify :
         else :
             isSgin = False
         return isSgin
+
+    # 只验证 out_trade_no 加密
+    def getSignVeryfy2(self, out_trade_no, sign):
+        return alipay_md5_function.md5Verify(out_trade_no, sign, self.alipay_config['key'] )
 
     #
     # 获取远程服务器ATN结果,验证返回URL

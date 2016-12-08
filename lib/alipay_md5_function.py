@@ -44,3 +44,9 @@ def md5Verify( prestr, sign, key) :
         return True
     else :
         return False
+
+def md5my_token(prestr, key):
+    prestr = "%s%s" % (prestr, key)
+    m1 = md5.new()
+    m1.update(prestr) 
+    return m1.hexdigest()

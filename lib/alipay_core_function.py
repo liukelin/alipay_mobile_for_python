@@ -11,11 +11,11 @@
 #  * 以下代码只是为了方便商户测试而提供的样例代码，商户可以根据自己网站的需要，按照技术文档编写,并非一定要使用该代码。
 #  * 该代码仅供学习和研究支付宝接口使用，只是提供一个参考。
  
-import ujson as json
+# import ujson as json
 import time
 import urllib
-import pycurl
 import StringIO
+import pycurl
 
 #urlencode 
 def my_urlencode(str) :
@@ -29,13 +29,15 @@ def my_urlencode(str) :
 #  return 拼接完成以后的字符串
 #  
 def createLinkstring(para, keys=[]) :
+
+    # print "para:%s,keys:%s" %(para, keys)
     arg = ""
     if len(keys)>0:
         for k in keys:
-             arg += "%s=%s&" %(k, para[k])
+            arg += "%s=%s&" %(str(k), str(para[k]))
     else :
         for i in para :
-            arg += "%s=%s&" %(i, para[i])
+            arg += "%s=%s&" %(str(i), str(para[i]))
 
     #如果存在转义字符，那么去掉转义
     #去掉最后一个&字符
@@ -67,7 +69,7 @@ def createLinkstringUrlencode(para,keys = []) :
 def paraFilter(para) :
     para_filter = {}
     for key in para :
-        if key=="sign" or key == "sign_type" or para[key] == "":
+        if key=="sign" or key == "sign_type" or para[key] == "" or para[key] == "key":
             continue
         para_filter[key] = para[key]
     return para_filter
@@ -111,6 +113,7 @@ def logResult(word='') :
  * return 远程输出的数据
  """
 def getHttpResponsePOST(url, cacert_url, para, input_charset = '') :
+    # import pycurl
     if input_charset.lstrip() != '':
         url = "%s_input_charset=%s" %(url,  input_charset )
     # responseText = requests.post( url, data=para)
@@ -146,7 +149,10 @@ def getHttpResponsePOST(url, cacert_url, para, input_charset = '') :
  * return 远程输出的数据
  """
 def  getHttpResponseGET(url, cacert_url ) :
-    # responseText = requests.get(url)
+    import requests
+    r = requests.get(url)
+    responseText = r.text
+    '''
     curl = pycurl.Curl()
     f = StringIO.StringIO()
     curl.setopt(curl.URL, url)
@@ -165,6 +171,7 @@ def  getHttpResponseGET(url, cacert_url ) :
     responseText = f.getvalue()
     curl.close()
     f.close()
+    '''
     return responseText
 
 """"

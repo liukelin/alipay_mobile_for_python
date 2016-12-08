@@ -5,3 +5,9 @@ alipay_mobile_for_python
 支付宝移动web网页跳转 支付接口 python2 实现包
  
 	@author: iiukelin      314566990@qq.com 
+
+
+所需要包：
+ requests   
+ ujson
+ 

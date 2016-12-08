@@ -38,6 +38,9 @@ class AlipaySubmit:
 
         #把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
         prestr = alipay_core_function.createLinkstring(para_sort, keys)
+
+
+        print "==%s=%s==" %(para_sort, prestr)
         if self.alipay_config['sign_type'].upper()  == 'MD5':
             mysign = alipay_md5_function.md5Sign(prestr, self.alipay_config['key'])
         else :
@@ -77,16 +80,33 @@ class AlipaySubmit:
 
         #待请求参数数组
         para = self.buildRequestPara(para_temp)
-        sHtml = """<form id='alipaysubmit' name='alipaysubmit' action='%s_input_charset=%s' method='%s'>""" \
+        sHtml = """<form id='alipaysubmit' name='alipaysubmit' action='%s_input_charset=%s' method='%s'  target="_blank">""" \
                         %( self.alipay_gateway_new, self.alipay_config['input_charset'].lower() , method)
         for k in para :
-            sHtml += "<input type='hidden' name='%s' value='%s'/>" %(k, para[k])
+            sHtml += "<input type='hidden' name='%s' value='%s'/>" %(str(k), str(para[k]))
 
         #submit按钮控件请不要含有name属性
         sHtml = "%s<input type='submit' value='%s'></form>" %(sHtml , button_name)
-        sHtml = "%s<script>document.forms['alipaysubmit'].submit();</script>" %(sHtml)
-        
+        # sHtml = "%s<script>document.forms['alipaysubmit'].submit();</script>" %(sHtml)
         return sHtml
+
+
+    # 建立请求，以URL形式构造
+    def buildRequestUrl(self, para_temp):
+        import urllib
+
+        # url = "%s_input_charset=%s" %(self.alipay_gateway_new, self.alipay_config['input_charset'].lower())
+        #待请求参数数组
+        para = self.buildRequestPara(para_temp)
+        # print para
+        # for k in para :
+        #     url += "&%s=%s" %(str(k), str(para[k]) )
+        data = "&%s" % urllib.urlencode(para)
+        # import requests
+        # m = requests.post( url, para ) 
+        # url = m.text.decode("utf-8")
+        return self.alipay_gateway_new +'?'+ data
+
 
     # 
     #  * 建立请求，以模拟远程HTTP的POST请求方式构造并获取支付宝的处理结果
